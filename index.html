@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Related Notes</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #1f2328;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --hover: #f3f4f6;
+        --accent: #2563eb;
+      }
+      :root[data-theme="dark"] {
+        --bg: #1b1d21;
+        --fg: #e6e8eb;
+        --muted: #9aa1ab;
+        --line: #2f3238;
+        --hover: #26292f;
+        --accent: #7aa7ff;
+      }
+      html, body { margin: 0; height: 100%; background: transparent; }
+      body {
+        font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--fg);
+      }
+      #panel {
+        box-sizing: border-box;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+        font-weight: 600;
+      }
+      header .actions { display: flex; gap: 4px; }
+      button {
+        all: unset;
+        cursor: pointer;
+        padding: 2px 8px;
+        border-radius: 6px;
+        color: var(--muted);
+      }
+      button:hover { background: var(--hover); color: var(--fg); }
+      #status {
+        padding: 6px 12px;
+        color: var(--muted);
+        font-size: 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      #status:empty { display: none; }
+      #bar { height: 3px; background: var(--line); display: none; }
+      #bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+      ul { list-style: none; margin: 0; padding: 4px; overflow-y: auto; flex: 1; }
+      li {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 7px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      li:hover { background: var(--hover); }
+      li .title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      li .score { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+      .empty { padding: 16px 12px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div id="panel">
+      <header>
+        <span>Related notes</span>
+        <span class="actions">
+          <button id="reindex" title="Re-index changed pages">↻</button>
+          <button id="close" title="Close">✕</button>
+        </span>
+      </header>
+      <div id="bar"><div></div></div>
+      <div id="status"></div>
+      <ul id="list"></ul>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
