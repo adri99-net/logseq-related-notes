@@ -4,18 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Related Notes</title>
-    <style>:root{--bg:#fff;--fg:#1f2328;--muted:#6b7280;--line:#e5e7eb;--hover:#f3f4f6;--accent:#2563eb}:root[data-theme=dark]{--bg:#1b1d21;--fg:#e6e8eb;--muted:#9aa1ab;--line:#2f3238;--hover:#26292f;--accent:#7aa7ff}html,body{background:0 0;height:100%;margin:0}body{color:var(--fg);font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}#panel{box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:10px;flex-direction:column;height:100%;display:flex;overflow:hidden}header{border-bottom:1px solid var(--line);justify-content:space-between;align-items:center;padding:10px 12px;font-weight:600;display:flex}header .actions{gap:4px;display:flex}button{all:unset;cursor:pointer;color:var(--muted);border-radius:6px;padding:2px 8px}button:hover{background:var(--hover);color:var(--fg)}#status{color:var(--muted);border-bottom:1px solid var(--line);padding:6px 12px;font-size:12px}#status:empty{display:none}#bar{background:var(--line);height:3px;display:none}#bar>div{background:var(--accent);width:0;height:100%;transition:width .2s}ul{flex:1;margin:0;padding:4px;list-style:none;overflow-y:auto}li{cursor:pointer;border-radius:6px;justify-content:space-between;gap:8px;padding:7px 8px;display:flex}li:hover{background:var(--hover)}li .title{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}li .score{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}.empty{color:var(--muted);padding:16px 12px}</style>
-    <script type="module" src="./assets/index-yfGD66pt.js"></script>
+    <style>:root{--bg:#fff;--fg:#1f2328;--muted:#6b7280;--line:#e5e7eb;--hover:#f3f4f6;--accent:#2563eb}:root[data-theme=dark]{--bg:#1b1d21;--fg:#e6e8eb;--muted:#9aa1ab;--line:#2f3238;--hover:#26292f;--accent:#7aa7ff}html,body{background:0 0;height:100%;margin:0}body{color:var(--fg);font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}#panel{box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:10px;flex-direction:column;height:100%;display:flex;overflow:hidden}header{border-bottom:1px solid var(--line);justify-content:space-between;align-items:center;padding:10px 12px;font-weight:600;display:flex}header .actions{gap:4px;display:flex}button{all:unset;cursor:pointer;color:var(--muted);border-radius:6px;padding:2px 8px}button:hover{background:var(--hover);color:var(--fg)}#status{color:var(--muted);border-bottom:1px solid var(--line);padding:6px 12px;font-size:12px}#status:empty{display:none}#searchrow{border-bottom:1px solid var(--line);padding:8px 10px}#q{box-sizing:border-box;width:100%;font:inherit;color:var(--fg);background:var(--hover);border:1px solid var(--line);border-radius:6px;outline:none;padding:6px 10px}#q:focus{border-color:var(--accent)}#bar{background:var(--line);height:3px;display:none}#bar>div{background:var(--accent);width:0;height:100%;transition:width .2s}ul{flex:1;margin:0;padding:4px;list-style:none;overflow-y:auto}li{cursor:pointer;border-radius:6px;justify-content:space-between;gap:8px;padding:7px 8px;display:flex}li:hover{background:var(--hover)}li .title{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}li .score{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}.empty{color:var(--muted);padding:16px 12px}</style>
+    <script type="module" src="./assets/index-XPVK3gWl.js"></script>
   </head>
   <body>
     <div id="panel">
       <header>
-        <span>Related notes</span>
+        <span id="heading">Related notes</span>
         <span class="actions">
           <button id="reindex" title="Re-index changed pages">↻</button>
           <button id="close" title="Close">✕</button>
         </span>
       </header>
+      <div id="searchrow">
+        <input id="q" type="search" placeholder="Search by meaning…" autocomplete="off" spellcheck="false" />
+      </div>
       <div id="bar"><div></div></div>
       <div id="status"></div>
       <ul id="list"></ul>

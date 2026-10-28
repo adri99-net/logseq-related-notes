@@ -321,7 +321,44 @@ async function currentPageTitle(): Promise<string | null> {
   return null;
 }
 
+// ---------- semantic search ----------
+
+let query = "";
+let searchSeq = 0; // drops results from searches that were superseded while embedding
+
+// BGE models are trained to retrieve passages for short queries given this instruction prefix.
+function queryText(q: string): string {
+  return /bge/i.test(cfg().modelId) ? `Represent this sentence for searching relevant passages: ${q}` : q;
+}
+
+async function runSearch(q: string) {
+  const seq = ++searchSeq;
+  $("heading").textContent = "Search results";
+  if (!modelReady) {
+    renderResults([], "Model is still loading…");
+    return;
+  }
+  if (!vectors.size) {
+    renderResults([], "No pages indexed yet.");
+    return;
+  }
+  let qv: Float32Array;
+  try {
+    qv = await embed(queryText(q));
+  } catch (e) {
+    setStatus(`Error: ${(e as Error).message}`);
+    return;
+  }
+  if (seq !== searchSeq) return;
+  const scored: { title: string; score: number }[] = [];
+  for (const r of vectors.values()) scored.push({ title: r.title, score: dot(qv, r.vec) });
+  scored.sort((a, b) => b.score - a.score);
+  renderResults(scored.slice(0, cfg().n), "No matches.");
+}
+
 async function refresh() {
+  if (query) return runSearch(query);
+  $("heading").textContent = "Related notes";
   if (!modelReady) return;
   const title = await currentPageTitle();
   if (!title) {
@@ -395,6 +432,21 @@ const togglePanel = () => (visible ? hidePanel() : showPanel());
 async function main() {
   $("close").addEventListener("click", hidePanel);
   $("reindex").addEventListener("click", () => void indexAll(false));
+
+  const qInput = $<HTMLInputElement>("q");
+  let qTimer: number | undefined;
+  qInput.addEventListener("input", () => {
+    query = qInput.value.trim();
+    window.clearTimeout(qTimer);
+    qTimer = window.setTimeout(() => void refresh(), 300);
+  });
+  qInput.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      qInput.value = "";
+      query = "";
+      void refresh();
+    }
+  });
 
   const setTheme = (mode: string) => {
     document.documentElement.dataset.theme = mode === "dark" ? "dark" : "light";

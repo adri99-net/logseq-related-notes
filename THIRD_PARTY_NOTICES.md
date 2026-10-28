@@ -1,4 +1,4 @@
-# THIRD_PARTY_NOTICES
+# Third-party notices
 
 The built plugin (`dist/`) bundles the following open-source packages.
 Their licences apply to their own code. Embedding models are downloaded from

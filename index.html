@@ -60,6 +60,19 @@
         border-bottom: 1px solid var(--line);
       }
       #status:empty { display: none; }
+      #searchrow { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+      #q {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 6px 10px;
+        font: inherit;
+        color: var(--fg);
+        background: var(--hover);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        outline: none;
+      }
+      #q:focus { border-color: var(--accent); }
       #bar { height: 3px; background: var(--line); display: none; }
       #bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
       ul { list-style: none; margin: 0; padding: 4px; overflow-y: auto; flex: 1; }
@@ -80,12 +93,15 @@
   <body>
     <div id="panel">
       <header>
-        <span>Related notes</span>
+        <span id="heading">Related notes</span>
         <span class="actions">
           <button id="reindex" title="Re-index changed pages">↻</button>
           <button id="close" title="Close">✕</button>
         </span>
       </header>
+      <div id="searchrow">
+        <input id="q" type="search" placeholder="Search by meaning…" autocomplete="off" spellcheck="false" />
+      </div>
       <div id="bar"><div></div></div>
       <div id="status"></div>
       <ul id="list"></ul>
