@@ -8,6 +8,7 @@ Shows the N most semantically similar pages to the one you're viewing, in a dock
 - Commands (Cmd/Ctrl+Shift+P): toggle panel, re-index changed pages, rebuild index.
 - Type in the search box to find pages by meaning (clear it or press Esc to go back to related notes).
 - Click a result to open it, Shift-click to open it in Logseq's right sidebar.
+- Double-click a result to insert a `[[link]]` to it at the cursor in the block you were editing. (A plain click waits ~250 ms so a double-click doesn't navigate away first.)
 
 ## Install
 Logseq → Settings → Advanced → Developer mode on → Plugins → Load unpacked plugin → select this folder (the one containing package.json and dist/).

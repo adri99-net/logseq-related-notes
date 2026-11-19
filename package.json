@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",
-    "@logseq/libs": "^0.0.17"
+    "@logseq/libs": "^0.3.6"
   },
   "type": "module",
   "author": "adri99-net"

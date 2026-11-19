@@ -76,6 +76,71 @@ function setBar(frac: number | null) {
   (bar.firstElementChild as HTMLElement).style.width = `${Math.round(frac * 100)}%`;
 }
 
+// ---------- insert link at cursor ----------
+
+// Clicking in the panel can pull focus out of the editor, so remember the block and cursor
+// position that were active when the mouse moved over the panel.
+let lastEdit: { uuid: string; pos?: number } | null = null;
+
+async function captureEditState() {
+  try {
+    const uuid = await logseq.Editor.checkEditing();
+    if (!uuid || typeof uuid !== "string") return;
+    const cur = await logseq.Editor.getEditingCursorPosition();
+    lastEdit = { uuid, pos: cur?.pos };
+  } catch {
+    // keep whatever we captured before
+  }
+}
+
+function flashStatus(msg: string, ms = 2500) {
+  const el = $("status");
+  const prev = el.textContent ?? "";
+  setStatus(msg);
+  window.setTimeout(() => {
+    if (el.textContent === msg) setStatus(prev);
+  }, ms);
+}
+
+async function insertLink(title: string) {
+  const text = `[[${title}]]`;
+  try {
+    // Still in edit mode: the textarea keeps its caret after losing focus, so insert right there.
+    if (await logseq.Editor.checkEditing()) {
+      await logseq.Editor.insertAtEditingCursor(text);
+      flashStatus(`Inserted ${text}`);
+      return;
+    }
+    // Edit mode was dropped: re-enter the last block at the remembered position, then insert.
+    if (lastEdit) {
+      await logseq.Editor.editBlock(
+        lastEdit.uuid,
+        lastEdit.pos === undefined ? undefined : { pos: lastEdit.pos },
+      );
+      await new Promise((r) => setTimeout(r, 60));
+      await logseq.Editor.insertAtEditingCursor(text);
+      flashStatus(`Inserted ${text}`);
+      return;
+    }
+    flashStatus("Place the cursor in a block first, then double-click a note to insert it.", 4000);
+  } catch (e) {
+    console.warn("related-notes: insert failed", e);
+    flashStatus(`Could not insert: ${(e as Error).message}`, 4000);
+  }
+}
+
+// ---------- results list ----------
+
+// A plain click opens the page, but a double-click must not navigate away first, so the open
+// is held back for this long to see whether a second click on the same item follows.
+const DOUBLE_CLICK_MS = 250;
+let pendingClick: { title: string; timer: number } | null = null;
+
+function cancelPendingClick() {
+  if (pendingClick) window.clearTimeout(pendingClick.timer);
+  pendingClick = null;
+}
+
 function renderResults(items: { title: string; score: number }[], emptyMsg: string) {
   const ul = listEl();
   ul.replaceChildren();
@@ -88,7 +153,7 @@ function renderResults(items: { title: string; score: number }[], emptyMsg: stri
   }
   for (const it of items) {
     const li = document.createElement("li");
-    li.title = "Click to open · Shift-click to open in sidebar";
+    li.title = "Click to open · Shift-click to open in sidebar · Double-click to insert link at cursor";
     const t = document.createElement("span");
     t.className = "title";
     t.textContent = it.title;
@@ -98,11 +163,26 @@ function renderResults(items: { title: string; score: number }[], emptyMsg: stri
     li.append(t, sc);
     li.addEventListener("click", async (e) => {
       if (e.shiftKey) {
+        cancelPendingClick();
+        if (e.detail > 1) return; // second click of a shift-double-click
         const page = await logseq.Editor.getPage(it.title);
         if (page?.uuid) logseq.Editor.openInRightSidebar(page.uuid);
-      } else {
-        logseq.App.pushState("page", { name: it.title });
+        return;
       }
+      // Second click on the same item within the window: insert instead of opening.
+      if (pendingClick && pendingClick.title === it.title) {
+        cancelPendingClick();
+        void insertLink(it.title);
+        return;
+      }
+      cancelPendingClick();
+      pendingClick = {
+        title: it.title,
+        timer: window.setTimeout(() => {
+          pendingClick = null;
+          logseq.App.pushState("page", { name: it.title });
+        }, DOUBLE_CLICK_MS),
+      };
     });
     ul.append(li);
   }
@@ -432,6 +512,8 @@ const togglePanel = () => (visible ? hidePanel() : showPanel());
 async function main() {
   $("close").addEventListener("click", hidePanel);
   $("reindex").addEventListener("click", () => void indexAll(false));
+  // Snapshot the editing block + caret while the editor still has focus, before the click lands.
+  $("panel").addEventListener("pointerenter", () => void captureEditState());
 
   const qInput = $<HTMLInputElement>("q");
   let qTimer: number | undefined;
@@ -483,6 +565,8 @@ async function main() {
 
   // Navigating away: refresh the page we left (it may have been edited), then show the new one.
   logseq.App.onRouteChanged(async () => {
+    lastEdit = null; // the remembered block belongs to the page we just left
+    cancelPendingClick();
     const left = currentTitle;
     if (left && modelReady) upsertPage(left).catch(() => undefined);
     scheduleRefresh(300);
